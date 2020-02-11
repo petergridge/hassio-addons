@@ -36,7 +36,7 @@ curl $addftpflags $credentials -T $zippath $ftpurl
 echo "[Info] Finished ftp backup"
 
 echo "[Info] removing existing zip files from $hassbackup"
-rm -rf *.zip
+rm -rf $hassbackup/*.zip
 echo "[info] zip files removed"
 
 echo "[Info] remove older files from $ftpurl"
