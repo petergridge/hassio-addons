@@ -36,16 +36,18 @@ curl $addftpflags $credentials -T $zippath $ftpurl
 echo "[Info] Finished ftp backup"
 
 echo "[Info] removing existing zip files from $hassbackup"
-rm -rf $hassbackup/*.zip
+cd $hassbackup
+find  -mtime -10 -type f -name '*.zip' -exec ls \;
+find  -mtime +$keepdays -type f -name '*.zip' -delete
 echo "[info] zip files removed"
 
 echo "[Info] remove older files from $ftpurl"
 ndays=$keepdays
 
-# work out our cutoff date
-MM=`date --date="$ndays days ago" +%b`
-DD=`date --date="$ndays days ago" +%d`
-TT=`date --date="$ndays days ago" +%s`
+# work out our cutoff date  RMDATE=$(date --iso -d '6 days ago')
+#MM=`date --iso '$ndays days ago'
+#DD=`date --date="$ndays days ago" +%d`
+#TT=`date --date="$ndays days ago" +%s`
 
 echo "removing files older than $MM $DD"
 
@@ -61,15 +63,15 @@ listing="`tail -n+4 dirlist|head -n-1`"
 lista=( $listing )
 
 # loop over our files
-for ((FNO=0; FNO<${#lista[@]}; FNO+=9));do
+#for ((FNO=0; FNO<${#lista[@]}; FNO+=9));do
   # month (element 5), day (element 6) and filename (element 8)
   # echo Date ${lista[`expr $FNO+5`]} ${lista[`expr $FNO+6`]}          File: ${lista[`expr $FNO+8`]}
 
-  fdate="${lista[`expr $FNO+5`]} ${lista[`expr $FNO+6`]} ${lista[`expr $FNO+7`]}"
-  sdate=`date --date="$fdate" +%s`
+#  fdate="${lista[`expr $FNO+5`]} ${lista[`expr $FNO+6`]} ${lista[`expr $FNO+7`]}"
+#  sdate=`date --date="$fdate" +%s`
   # check the date stamp
-  if [ $sdate -lt $TT ]
-  then
+#  if [ $sdate -lt $TT ]
+#  then
       # Remove this file
       echo "$MM $DD: Removing  ${lista[`expr $FNO+5`]} /  ${lista[`expr $FNO+6`]} / ${lista[`expr $FNO+8`]}"
 #      $ftpsite <<EOMYF2
@@ -78,4 +80,4 @@ for ((FNO=0; FNO<${#lista[@]}; FNO+=9));do
 #      quit
 #EOMYF2
 
-  fi
+#  fi
