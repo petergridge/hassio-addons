@@ -19,7 +19,7 @@ https://github.com/petergridge/hassio-addons/
 
 ### [ftp-backup]
 
-This simple addon will create a password protected ZIP Archive of the configuration stored under /config (explucing the Database).
+This simple addon will create a password protected ZIP Archive of the configuration stored under /config (exclucing the Database).
 The Archive will be permanently stored under /backup as homeassistant_backup_*.zip
 
 On top of this it will upload the the archive to the specified FTP Server.
