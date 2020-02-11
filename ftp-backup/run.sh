@@ -26,10 +26,6 @@ hassbackup="/backup"
 zipfile="homeassistant_backup_$today.zip"
 zippath="$hassbackup/$zipfile"
 
-echo "[Info] removing existing zip files from $hassbackup"
-rm -rf *.zip
-echo "[info] zip files removed"
-
 echo "[Info] Starting backup creating $zippath"
 cd $hassconfig
 zip -P $zippassword -r $zippath . -x ./*.db ./*.db-shm ./*.db-wal
@@ -38,6 +34,10 @@ echo "[Info] Finished archiving configuration"
 echo "[Info] trying to upload $zippath to $ftpurl"
 curl $addftpflags $credentials -T $zippath $ftpurl
 echo "[Info] Finished ftp backup"
+
+echo "[Info] removing existing zip files from $hassbackup"
+rm -rf *.zip
+echo "[info] zip files removed"
 
 echo "[Info] remove older files from $ftpurl"
 ndays=$keepdays
