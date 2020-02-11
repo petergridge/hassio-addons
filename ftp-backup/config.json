@@ -21,7 +21,7 @@
     "ftpusername": "ftpuser",
     "ftppassword": "ftppass",
 	"addftpflags": "",
-    "zippassword": "homeassistant"
+    "zippassword": "homeassistant",
     "keepdays": "20"
   },
   "schema": {
@@ -32,7 +32,7 @@
     "ftpusername": "str",
     "ftppassword": "str",
 	"addftpflags": "str",
-    "zippassword": "str"
+    "zippassword": "str",
     "keepdays": "int"
   }
 }
