@@ -53,7 +53,7 @@ echo "removing files older than $MM $DD"
 
 # get directory listing from remote source
 echo "
-cd $putdir
+cd $ftpbackupfolder
 ls -l
 "|$ftpsite >dirlist
 
