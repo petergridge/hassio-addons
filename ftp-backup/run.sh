@@ -27,7 +27,7 @@ zipfile="homeassistant_backup_$today.zip"
 zippath="$hassbackup/$zipfile"
 
 echo "[Info] removing existing zip files from $hassbackup"
-rm -rf -d *.zip
+rm -rf *.zip
 echo "[info] zip files removed"
 
 echo "[Info] Starting backup creating $zippath"
