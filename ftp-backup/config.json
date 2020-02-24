@@ -1,6 +1,6 @@
 {
   "name": "FTP Cycle",
-  "version": "0.2.0",
+  "version": "0.2.9",
   "slug": "ftpbackup",
   "description": "Creates a backup of the configuration folder config and  upload the archive on the specified ftp server. The archive will be password protected. Please note that ftp upload is not secure, as the ftp password will be seing in clear text",
   "startup": "before",
@@ -33,7 +33,7 @@
     "ftpbackupfolder": "str",
     "ftpusername": "str",
     "ftppassword": "str",
-    "addcurlflags": "str",
+    "addcurlflags": "str?",
     "zippassword": "str?",
     "keepmonths": "int(1,)",
     "weeklyday": "int(1,7)"

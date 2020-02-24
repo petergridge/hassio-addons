@@ -22,7 +22,7 @@ response=$(curl $addcurlflags \
      -X POST $curlurl \
      -H "${auth_header}" \
      -H "Content-Type: application/json" \
-     -d '{"state":"In Progress"}')
+     -d '{"state": "In progress", "attributes": { "icon" : "mdi:folder-zip-outline", "friendly_name" : "Backup" } }')
 
 ftpurl="$ftpprotocol://$ftpserver:$ftpport/$ftpbackupfolder/"
 credentials=""
@@ -151,4 +151,4 @@ response=$(curl $addcurlflags \
      -X POST $curlurl \
      -H "${auth_header}" \
      -H "Content-Type: application/json" \
-     -d '{"state":"Success"}')
+     -d '{"state": "Success", "attributes": { "icon" : "mdi:folder-zip-outline", "friendly_name" : "Backup" } }')
