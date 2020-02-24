@@ -76,6 +76,17 @@ automation:
         data:
           #get this from the url of the supervisor page for this addon
           addon: local_ftpbackup
+
+    - id: Start
+      alias: Start
+      trigger:
+      - event: start
+        platform: homeassistant
+      action:
+      #backup each time there is a restart
+      - service: hassio.addon_start
+        data:
+          addon: local_myftpbackup
 ```
 
 ## Acknowlegment
