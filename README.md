@@ -35,23 +35,23 @@ Please note that using a FTP Protocol is not secure as the ftp password will be 
 ## CONFIGURATION VARIABLES
 
 ### ftpprotocol
-*(string)(Required)* ftp.
+*(string)(Required)* ftp
 #### ftpserver
 *(string)(Required)* The ip address of the FTP server
 #### ftpport
-*(template)(Required)* For FTP this is typically 21.
+*(template)(Required)* For FTP this is typically 21
 #### ftpbackupfolder
-*(string)(Required)* The directory that will contain the zip files on the FTP server.
+*(string)(Required)* The directory that will contain the zip files on the FTP server
 #### ftpusername 
-*(string)(Required)* THe FTP server user.
+*(string)(Required)* THe FTP server user
 #### ftppassword
 *(string)(Required)* The FTP server password
 #### addcurlflags
 *(string)(optional)* -sS provides silent operation
 #### zippassword
-*(string)(Optional)* The password required to access the zip archive.
+*(string)(Optional)* The password required to access the zip archive
 #### keepmonths 
-*(Int)(Required)* The number of bacjup cycles to keep.
+*(Int)(Required)* The number of backup cycles to keep
 #### weeklyday
 *(Int)(Required)* The day to consolidate the archives a number between 1 (Monday) and 7 (Sunday)
 
@@ -60,3 +60,22 @@ Please note that using a FTP Protocol is not secure as the ftp password will be 
 ### sensor.addon_backup
 #### friendly name: Backup
 #### icon: mdi:folder-zip-outline
+
+## Automation
+
+To run this regularly use the following automation.
+
+To determine the addon go to the addon in the Supervisor page and copy the name from the end of the URL.
+
+```yaml
+    - id: backup
+      alias: backup
+      trigger:
+        platform: time
+        at: 05:00:00
+      action:
+      - service: hassio.addon_start
+        data:
+          #get this from the url of the supervisor page for this addon
+          addon: local_ftpbackup
+```
