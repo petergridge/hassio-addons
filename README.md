@@ -68,6 +68,7 @@ To run this regularly use the following automation.
 To determine the addon go to the addon in the Supervisor page and copy the name from the end of the URL.
 
 ```yaml
+automation:
     - id: backup
       alias: backup
       trigger:
