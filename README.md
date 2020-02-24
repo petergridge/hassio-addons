@@ -20,9 +20,6 @@ https://github.com/petergridge/hassio-addons/
 
 # FTP Cycle
 
-## Acknowlegment
-Thanks to https://github.com/leinich for providing the basis of this addon
-
 This simple addon will create a password protected ZIP Archive of the configuration stored under /config (exclucing the Database).
 The Archive will be temporarily stored under /backup as daily, weekly or monthly *.zip
 
@@ -80,3 +77,6 @@ automation:
           #get this from the url of the supervisor page for this addon
           addon: local_ftpbackup
 ```
+
+## Acknowlegment
+Thanks to https://github.com/leinich for providing the basis of this addon
