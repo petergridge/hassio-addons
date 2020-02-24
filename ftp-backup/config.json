@@ -1,8 +1,8 @@
 {
-  "name": "FTP Backup",
-  "version": "0.3.5",
+  "name": "FTP Cycle",
+  "version": "0.2.0",
   "slug": "ftpbackup",
-  "description": "Creates a backup of the configuration folder config. An archive of the config directory will be stored under backup and also upload the archive on the specified ftp server. The archive will be password protected. Please note that ftp upload is not secure, as the ftp password will be seing in clear text",
+  "description": "Creates a backup of the configuration folder config and  upload the archive on the specified ftp server. The archive will be password protected. Please note that ftp upload is not secure, as the ftp password will be seing in clear text",
   "startup": "before",
   "arch": [
     "amd64",
@@ -12,27 +12,30 @@
     "aarch64"
   ],
   "boot": "auto",
+  "homeassistant_api": "true",
   "map": ["config", "backup:rw"],
   "options": {
-	"ftpprotocol": "ftp",
-    "ftpserver": "server",
+    "ftpprotocol": "ftp",
+    "ftpserver": "!secret ftpserver",
     "ftpport": "21",
-    "ftpbackupfolder": "homeassistant",
-    "ftpusername": "ftpuser",
-    "ftppassword": "ftppass",
-	"addftpflags": "",
-    "zippassword": "homeassistant",
-    "keepdays": "20"
+    "ftpbackupfolder": "backup",
+    "ftpusername": "!secret ftpusername",
+    "ftppassword": "!secret ftppassword",
+    "addcurlflags": "-sS",
+    "zippassword": "!secret zippassword",
+    "keepmonths": "6",
+    "weeklyday": "7"
   },
   "schema": {
-	"ftpprotocol": "str",
+    "ftpprotocol": "str",
     "ftpserver": "str", 
     "ftpport": "int",
     "ftpbackupfolder": "str",
     "ftpusername": "str",
     "ftppassword": "str",
-	"addftpflags": "str",
-    "zippassword": "str",
-    "keepdays": "int"
+    "addcurlflags": "str",
+    "zippassword": "str?",
+    "keepmonths": "int(1,)",
+    "weeklyday": "int(1,7)"
   }
 }

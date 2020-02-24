@@ -1,7 +1,7 @@
-#!/bin/bash
+#!/usr/bin/env bashio
 set -e
 
-echo "[Info] Starting FTP Backup docker!"
+echo "[Info] Starting!"
 
 CONFIG_PATH=/data/options.json
 ftpprotocol=$(jq --raw-output ".ftpprotocol" $CONFIG_PATH)
@@ -10,74 +10,145 @@ ftpport=$(jq --raw-output ".ftpport" $CONFIG_PATH)
 ftpbackupfolder=$(jq --raw-output ".ftpbackupfolder" $CONFIG_PATH)
 ftpusername=$(jq --raw-output ".ftpusername" $CONFIG_PATH)
 ftppassword=$(jq --raw-output ".ftppassword" $CONFIG_PATH)
-addftpflags=$(jq --raw-output ".addftpflags" $CONFIG_PATH)
+addcurlflags=$(jq --raw-output ".addcurlflags" $CONFIG_PATH)
 zippassword=$(jq --raw-output ".zippassword" $CONFIG_PATH)
-keepdays=$(jq --raw-output ".keepdays" $CONFIG_PATH)
+keepmonths=$(jq --raw-output ".keepmonths" $CONFIG_PATH)
+weeklyday=$(jq --raw-output ".weeklyday" $CONFIG_PATH)
+
+auth_header="Authorization: Bearer ${__BASHIO_SUPERVISOR_TOKEN}"
+
+curlurl="http://supervisor/core/api/states/sensor.addon_backup"
+response=$(curl $addcurlflags \
+     -X POST $curlurl \
+     -H "${auth_header}" \
+     -H "Content-Type: application/json" \
+     -d '{"state":"In Progress"}')
 
 ftpurl="$ftpprotocol://$ftpserver:$ftpport/$ftpbackupfolder/"
 credentials=""
 if [ "${#ftppassword}" -gt "0" ]; then
 	credentials="-u $ftpusername:$ftppassword"
 fi
-	
+
 today=`date +%Y%m%d%H%M%S`
 hassconfig="/config"
 hassbackup="/backup"
-zipfile="homeassistant_backup_$today.zip"
-zippath="$hassbackup/$zipfile"
 
-echo "[Info] Starting backup creating $zippath"
+#day of the month
+DOM=`date +%d`
+#day of the week, 1 is Monday
+DOW=`date +%u`
+
+echo "[Info] Creating ZIP archive"
+if [ $DOM == $weeklyday ] && [ $DOM -lt 8 ]; then
+  PROCESS="M"
+  zipprefix="monthly_"
+elif [ $DOW == $weeklyday ]; then
+  PROCESS="W"
+  zipprefix="weekly_"
+else
+  PROCESS="D"
+  zipprefix="daily_"
+fi
+zipname="$zipprefix$today.zip"
+zippath="$hassbackup/$zipname"
+
 cd $hassconfig
-zip -P $zippassword -r $zippath . -x ./*.db ./*.db-shm ./*.db-wal
-echo "[Info] Finished archiving configuration"
+zip -P $zippassword -r -q $zippath . -x ./*.db ./*.db-shm ./*.db-wal
+echo "[Info] ZIP archive created"
 
-echo "[Info] trying to upload $zippath to $ftpurl"
-curl $addftpflags $credentials -T $zippath $ftpurl
-echo "[Info] Finished ftp backup"
+echo "[Info] Uploading $zipname to FTP server"
+curl  $addcurlflags $credentials -T $zippath $ftpurl
+echo "[Info] Upload to FTP server complete"
 
-echo "[Info] removing existing zip files from $hassbackup"
+echo "[Info] Creating working files"
 cd $hassbackup
-find  -mtime -10 -type f -name '*.zip' -exec ls \;
-find  -mtime +$keepdays -type f -name '*.zip' -delete
-echo "[info] zip files removed"
+curl --list-only $addcurlflags $credentials $ftpurl >dirlist
 
-echo "[Info] remove older files from $ftpurl"
-ndays=$keepdays
+set +e
+grep daily dirlist >dailyfiles
+grep weekly dirlist >weeklyfiles
+grep monthly dirlist >monthlyfiles
+set -e
 
-# work out our cutoff date  RMDATE=$(date --iso -d '6 days ago')
-#MM=`date --iso '$ndays days ago'
-#DD=`date --date="$ndays days ago" +%d`
-#TT=`date --date="$ndays days ago" +%s`
+if [ $PROCESS == "M" ] || [ $PROCESS == "W" ]; then
+  while read p; do
+    echo "[Info] Deleting $p from ftp server $ftpserver"
+    curl $addcurlflags $ftpurl $credentials -o dirlist --quote "DELE ${ftpbackupfolder}/${p}"
+  done <dailyfiles
+fi
 
-echo "removing files older than $MM $DD"
+if [ $PROCESS == "M" ]; then
+  while read p; do
+    echo "[Info] Deleting $p from ftp server $ftpserver"
+    curl $addcurlflags $ftpurl $credentials -o dirlist --quote "DELE ${ftpbackupfolder}/${p}"
+  done <weeklyfiles
+  #delete monthly files older than keepmonths old
+  #have to use this method as HASSOS does not support all date operations
+  MONTH=`date +%m`
+  MONTH=${MONTH#0}
+  YEAR=`date +%Y`
+  ZERO="0"
+  DAYTIME="28000000"
+  MONTH="$((MONTH-keepmonths))"
+  if [ $MONTH -lt 1 ];   then
+    $MONTH=12+$MONTH
+    $YEAR=$YEAR-1
+  fi
+  if [ $MONTH -lt 10 ]; then
+      COMP=$YEAR$ZERO$MONTH$DAYTIME
+  else
+      COMP=$YEAR$MONTH$DAYTIME
+  fi
 
-# get directory listing from remote source
-echo "
-cd $ftpbackupfolder
-ls -l
-"|$ftpsite >dirlist
+  #extract datetime from the file name
+  awk -F"[_.]" '{ print $2 }'<monthlyfiles >monthlyfiles2
+  #remove blank lines
+  sed -i '/^$/d' monthlyfiles2
 
-# skip first three and last line, ftp command echo
-listing="`tail -n+4 dirlist|head -n-1`"
+  while read p; do
+    if [ $p -lt $COMP ]; then
+      zip=monthly_$p.zip
+      echo "[Info] Deleting $zip from ftp server $ftpserver"
+      curl $addcurlflags $ftpurl $credentials -o dirlist --quote "DELE ${ftpbackupfolder}/${zip}"
+    fi
+  done <monthlyfiles2
+  rm monthlyfiles2
 
-lista=( $listing )
+fi
 
-# loop over our files
-#for ((FNO=0; FNO<${#lista[@]}; FNO+=9));do
-  # month (element 5), day (element 6) and filename (element 8)
-  # echo Date ${lista[`expr $FNO+5`]} ${lista[`expr $FNO+6`]}          File: ${lista[`expr $FNO+8`]}
+echo "[Info] Deleting zip files created earlier today"
+#extract datetime from the file name
+awk -F"[_.]" '{ print $2 }'<dirlist >dirlist2
+#remove blank lines
+sed -i '/^$/d' dirlist2
 
-#  fdate="${lista[`expr $FNO+5`]} ${lista[`expr $FNO+6`]} ${lista[`expr $FNO+7`]}"
-#  sdate=`date --date="$fdate" +%s`
-  # check the date stamp
-#  if [ $sdate -lt $TT ]
-#  then
-      # Remove this file
-      echo "$MM $DD: Removing  ${lista[`expr $FNO+5`]} /  ${lista[`expr $FNO+6`]} / ${lista[`expr $FNO+8`]}"
-#      $ftpsite <<EOMYF2
-#      cd $putdir
-#      delete ${lista[`expr $FNO+8`]}
-#      quit
-#EOMYF2
+while read p; do
+  PDATE="$(printf '%.8s' $p)"
+  DATE=`date +%Y%m%d`
+  if [ $PDATE -eq $DATE ] && [ $p -ne $today ]; then
+    zip=$zipprefix$p.zip
+    echo "[Info] Deleting $zip from ftp server $ftpserver"
+    set +e
+    response=$(curl $addcurlflags $ftpurl \
+         $credentials \
+         --quote "DELE ${ftpbackupfolder}/${zip}")
+    set -e
+  fi
+done <dirlist2
 
-#  fi
+echo "[Info] Cleaning up workfiles"
+cd $hassbackup
+rm dirlist
+rm dirlist2
+rm weeklyfiles
+rm dailyfiles
+rm monthlyfiles
+find $hassbackup -type f -name $zipname -exec rm {} \;
+echo "[Info] Workfiles removed"
+
+response=$(curl $addcurlflags \
+     -X POST $curlurl \
+     -H "${auth_header}" \
+     -H "Content-Type: application/json" \
+     -d '{"state":"Success"}')
