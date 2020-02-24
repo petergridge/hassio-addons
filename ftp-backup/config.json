@@ -1,6 +1,6 @@
 {
   "name": "FTP Cycle",
-  "version": "0.2.9",
+  "version": "0.2.10",
   "slug": "ftpbackup",
   "description": "Creates a backup of the configuration folder config and  upload the archive on the specified ftp server. The archive will be password protected. Please note that ftp upload is not secure, as the ftp password will be seing in clear text",
   "startup": "before",
@@ -14,6 +14,7 @@
   "boot": "auto",
   "homeassistant_api": "true",
   "map": ["config", "backup:rw"],
+  "url": "https://github.com/petergridge/hassio-addons",
   "options": {
     "ftpprotocol": "ftp",
     "ftpserver": "!secret ftpserver",
