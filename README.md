@@ -18,7 +18,7 @@ https://github.com/petergridge/hassio-addons/
 
 ## Add-ons provided by this repository
 
-### [ftp-backup]
+### [FTP Cycle]
 
 ## Acknowlegment
 Thanks to https://github.com/leinich for providing the basis of this addon
