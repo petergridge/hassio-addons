@@ -57,9 +57,6 @@ Please note that using a FTP Protocol is not secure as the ftp password will be 
 
 ## Sensors
 
-### addon-backup
-
-#### sensor.addon_backup
+### sensor.addon_backup
 #### freindly name: Backup
 #### icon: mdi:folder-zip-outline
-
