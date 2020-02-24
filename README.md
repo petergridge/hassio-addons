@@ -86,7 +86,7 @@ automation:
       #backup each time there is a restart
       - service: hassio.addon_start
         data:
-          addon: local_myftpbackup
+          addon: local_ftpbackup
 ```
 
 ## Acknowlegment
