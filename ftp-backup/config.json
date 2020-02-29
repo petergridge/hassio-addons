@@ -1,6 +1,6 @@
 {
   "name": "FTP Cycle",
-  "version": "0.2.10",
+  "version": "0.3.18",
   "slug": "ftpbackup",
   "description": "Creates a backup of the configuration folder config and  upload the archive on the specified ftp server. The archive will be password protected. Please note that ftp upload is not secure, as the ftp password will be seing in clear text",
   "startup": "before",
@@ -16,27 +16,28 @@
   "map": ["config", "backup:rw"],
   "url": "https://github.com/petergridge/hassio-addons",
   "options": {
-    "ftpprotocol": "ftp",
-    "ftpserver": "!secret ftpserver",
-    "ftpport": "21",
-    "ftpbackupfolder": "backup",
-    "ftpusername": "!secret ftpusername",
-    "ftppassword": "!secret ftppassword",
-    "addcurlflags": "-sS",
-    "zippassword": "!secret zippassword",
-    "keepmonths": "6",
-    "weeklyday": "7"
+    "ftp_protocol": "ftp",
+    "ftp_server": "!secret ftpserver",
+    "ftp_port": "21",
+    "ftp_backup_folder": "backup",
+    "ftp_username": "!secret ftpusername",
+    "ftp_password": "!secret ftppassword",
+    "add_curl_flags": "-sS",
+    "zip_password": "!secret zippassword",
+    "keep_months": "6",
+    "weekly_day": "7"
   },
   "schema": {
-    "ftpprotocol": "str",
-    "ftpserver": "str", 
-    "ftpport": "int",
-    "ftpbackupfolder": "str",
-    "ftpusername": "str",
-    "ftppassword": "str",
-    "addcurlflags": "str?",
-    "zippassword": "str?",
-    "keepmonths": "int(1,)",
-    "weeklyday": "int(1,7)"
-  }
+    "ftp_protocol": "str",
+    "ftp_server": "str", 
+    "ftp_port": "int",
+    "ftp_backup_folder": "str",
+    "ftp_username": "str",
+    "ftp_password": "str",
+    "add_curl_flags": "str?",
+    "zip_password": "str?",
+    "keep_months": "int(1,)",
+    "weekly_day": "int(1,7)",
+    "log_level": "list(info|debug)?"
+    }
 }
